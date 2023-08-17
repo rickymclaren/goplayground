@@ -8,6 +8,10 @@ import "fmt"
 // Each step of the pipeline creates an output channel that will be used by a spun off goroutine
 // and then spins off the goroutine to process the input to the output channels
 
+// NOTE: For a synchronous channel you need one goroutine pushing data and one pulling
+// Otherwise you will have a deadlock.
+// That is why it can't all be done in the main routine.
+
 func sliceToChannel(nums []int) <-chan int {
 	out := make(chan int)
 	go func() {
