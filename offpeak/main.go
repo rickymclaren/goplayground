@@ -11,7 +11,8 @@ import (
 	"time"
 )
 
-var usage float64
+var peak float64
+var offPeak float64
 
 // ---------------------
 
@@ -110,12 +111,19 @@ func main() {
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
 		cd := newComsumptionData(line)
-		if cd.OffPeak() && cd.WithinDates(startDate, endDate) {
-			fmt.Println(cd)
-			usage += cd.consumption
+		if cd.WithinDates(startDate, endDate) {
+			if cd.OffPeak() && cd.WithinDates(startDate, endDate) {
+				fmt.Println(cd)
+				offPeak += cd.consumption
+			} else {
+				peak += cd.consumption
+			}
+
 		}
 	}
-	fmt.Printf("Off peak consumption: %f kW\n", usage)
+	fmt.Printf("\nOff peak consumption: %f kW\n", offPeak)
+	fmt.Printf("Peak consumption: %f kW\n", peak)
+	fmt.Printf("Total consumption: %f kW\n\n", offPeak+peak)
 
 	fmt.Println("Start time is " + startDate.String())
 	fmt.Println("End time is " + endDate.String())
