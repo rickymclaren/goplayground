@@ -115,7 +115,7 @@ func main() {
 			usage += cd.consumption
 		}
 	}
-	fmt.Printf("Off peak consumption: %f kWH\n", usage)
+	fmt.Printf("Off peak consumption: %f kW\n", usage)
 
 	fmt.Println("Start time is " + startDate.String())
 	fmt.Println("End time is " + endDate.String())
