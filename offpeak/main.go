@@ -44,8 +44,12 @@ func (cd consumptionData) OffPeak() bool {
 	return cd.ts.Local().Hour() < 5
 }
 
+func (cd consumptionData) WithinDates(start time.Time, end time.Time) bool {
+	return cd.ts.After(start) && cd.ts.Before(end)
+}
+
 func (cd consumptionData) String() string {
-	return fmt.Sprintf("%s, %f", cd.ts.String(), cd.consumption)
+	return fmt.Sprintf("%s, %f", cd.ts.Local().String(), cd.consumption)
 }
 
 // ---------------------
@@ -64,28 +68,6 @@ func findByExtension(root, ext string) []string {
 	return a
 }
 
-func withinDates(startDate string, endDate string, line string) bool {
-	date := line[1:17]
-	if date < startDate {
-		return false
-	}
-	if date > endDate {
-		return false
-	}
-	return true
-}
-
-func addUsage(line string) {
-	index := strings.Index(line, ",\"")
-	u := line[index+2 : len(line)-1]
-	f, err := strconv.ParseFloat(u, 32)
-	if err != nil {
-		fmt.Printf("Unable to parse %s\n", u)
-	} else {
-		usage = usage + f
-	}
-}
-
 func main() {
 
 	if len(os.Args) != 3 {
@@ -93,8 +75,17 @@ func main() {
 		return
 	}
 
-	// startDate := os.Args[1]
-	// endDate := os.Args[2]
+	startDate, err := time.ParseInLocation("2006-01-02", os.Args[1], time.Local)
+	if err != nil {
+		panic(err)
+	}
+	endDate, err := time.ParseInLocation("2006-01-02", os.Args[2], time.Local)
+	if err != nil {
+		panic(err)
+	}
+	// adjust dates to make them inclusive
+	startDate = startDate.Add(-1 * time.Minute)
+	endDate = endDate.Add(24 * time.Hour)
 
 	files := findByExtension(".", ".csv")
 	if len(files) == 0 {
@@ -119,13 +110,14 @@ func main() {
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
 		cd := newComsumptionData(line)
-		if cd.OffPeak() {
+		if cd.OffPeak() && cd.WithinDates(startDate, endDate) {
 			fmt.Println(cd)
-			addUsage(line)
+			usage += cd.consumption
 		}
 	}
-	fmt.Printf("Usage: %f kWH\n", usage)
+	fmt.Printf("Off peak consumption: %f kWH\n", usage)
 
-	fmt.Println("The current time is " + time.Now().String())
+	fmt.Println("Start time is " + startDate.String())
+	fmt.Println("End time is " + endDate.String())
 
 }
