@@ -112,7 +112,7 @@ func main() {
 		line := fileScanner.Text()
 		cd := newComsumptionData(line)
 		if cd.WithinDates(startDate, endDate) {
-			if cd.OffPeak() && cd.WithinDates(startDate, endDate) {
+			if cd.OffPeak() {
 				fmt.Println(cd)
 				offPeak += cd.consumption
 			} else {
