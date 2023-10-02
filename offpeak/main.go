@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -72,15 +73,15 @@ func findByExtension(root, ext string) []string {
 func main() {
 
 	if len(os.Args) != 3 {
-		fmt.Println("Usage main.go '2023-01-27' '2023-03-21'")
+		fmt.Println("Usage main.go '20230127' '20230321'")
 		return
 	}
 
-	startDate, err := time.ParseInLocation("2006-01-02", os.Args[1], time.Local)
+	startDate, err := time.ParseInLocation("20060102", os.Args[1], time.Local)
 	if err != nil {
 		panic(err)
 	}
-	endDate, err := time.ParseInLocation("2006-01-02", os.Args[2], time.Local)
+	endDate, err := time.ParseInLocation("20060102", os.Args[2], time.Local)
 	if err != nil {
 		panic(err)
 	}
@@ -94,6 +95,8 @@ func main() {
 		return
 	}
 
+	slices.Sort(files)
+	slices.Reverse(files)
 	file := files[0]
 	fmt.Printf("Using %s\n", file)
 
