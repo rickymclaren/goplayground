@@ -98,6 +98,7 @@ func main() {
 	slices.Sort(files)
 	slices.Reverse(files)
 	file := files[0]
+	fmt.Printf("%v\n", files)
 	fmt.Printf("Using %s\n", file)
 
 	readFile, err := os.Open(file)
